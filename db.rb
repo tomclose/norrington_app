@@ -9,7 +9,17 @@ ActiveRecord::Base.establish_connection(
 
 ActiveRecord::Migration.create_table :colleges do |t|
   t.string :name
+  t.integer :college_type_id
 end
 
+ActiveRecord::Migration.create_table :college_types do |t|
+  t.string :name
+end
+
+class CollegeType < ActiveRecord::Base
+end
+
+
 class College < ActiveRecord::Base
+  belongs_to :college_type
 end
