@@ -1,7 +1,7 @@
 require 'sinatra'
 require 'csv'
 
-data = CSV.read('./data/norrington_over_years.csv', :col_sep => "\t")
+data = CSV.read('./data/norrington_over_years.csv', :col_sep => "\t", :encoding => 'UTF-8')
 
 headings = data.first
 values = data[1..-1]
