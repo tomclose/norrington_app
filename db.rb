@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'active_record'
+require 'csv'
 
 ActiveRecord::Base.establish_connection(
   adapter: "sqlite3",
@@ -20,7 +21,7 @@ ActiveRecord::Migration.create_table :years do |t|
   t.string :name
 end
 
-ActiveRecord::Mirgration.create_table :data_points do |t|
+ActiveRecord::Migration.create_table :data_points do |t|
   t.integer :college_id
   t.integer :year_id
   t.decimal :score
@@ -45,7 +46,7 @@ class DataPoint < ActiveRecord::Base
   belongs_to :year
 end
 
-data = CSV.read('./data/norrington_over_years.csv', :col_sep => "\t")
+data = CSV.read('./data/norrington_over_years.csv', :col_sep => "\t",:encoding => 'UTF-8')
 
 headings = data.first
 values = data[1..-1]
@@ -60,6 +61,19 @@ end
 
 values_as_hashes.each do |hash|
   t = CollegeType.find_or_create_by_name(hash['Type'])
-  c = College.create(:name => hash['Name'])
+  college_name = hash['Name']
+  if c = College.find_by_name(college_name)
+    # do nothing
+  else
+    c = College.create(:name => hash['Name'], :college_type => t)
+  end
+  allowed_years.each do |year|
+    score = hash["#{year} Score"]
+    count = hash["#{year} Count"]
+    y = Year.find_by_name(year)
+    if score && count
+      DataPoint.create(:college => c, :year => y, :score => score, :count => count)
+    end
+  end
 end
 
