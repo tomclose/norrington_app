@@ -30,3 +30,12 @@ get '/year/:year' do | year |
     erb :missing_year
   end
 end
+
+get '/college/new' do 
+  erb :new_college
+end
+
+post '/college/new' do 
+  raise params.inspect
+  erb :new_college
+end
