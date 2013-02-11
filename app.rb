@@ -1,5 +1,8 @@
 require 'sinatra'
 require 'csv'
+load './db.rb'
+
+connect_to_db
 
 data = CSV.read('./data/norrington_over_years.csv', :col_sep => "\t")
 
@@ -14,19 +17,16 @@ get '/' do
 end
 
 get '/year/:year' do | year |
-   allowed_years = %w( 2006 2007 2008 2009 2010 2011 2012)
-   if allowed_years.include?(year)
-     score_column_name = "#{year} Score"
-     @data = values_as_hashes.map do |h|
-       [h['Name'], h['Type'], h[score_column_name]]
-     end
-     @data.reject! {|h| h[2].nil?}
-     @data.sort_by! {|h| h[2] }.reverse!
-     @year = year
-     erb :year_ranking
+  if Year.find_by_name(year)
+    y = Year.find_by_name(year)
+    @data = y.data_points.map do |dp|
+      [dp.college.name, dp.college.college_type.name, dp.score]
+    end
+    @year = year
+    erb :year_ranking
 
-   else
-     @year = year
-     erb :missing_year
-   end
+  else
+    @year = year
+    erb :missing_year
+  end
 end
